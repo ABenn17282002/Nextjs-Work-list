@@ -40,20 +40,24 @@ export default function RegisterPage() {
     <div className="register-container">
       <h1>サインアップ</h1>
       <form onSubmit={handleSignUp}>
-        <input
-          type="email"
-          placeholder="メールアドレス"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="パスワード"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <div>
+          <label>メールアドレス:</label>
+          <input
+            type="email"
+            value={email} // email状態の値を設定
+            onChange={(e) => setEmail(e.target.value)} // 入力値をemail状態に反映
+            required
+          />
+        </div>
+        <div>
+          <label>パスワード:</label>
+          <input
+            type="password"
+            value={password} // password状態の値を設定
+            onChange={(e) => setPassword(e.target.value)} // 入力値をpassword状態に反映
+            required
+          />
+        </div>
         <button type="submit">サインアップ</button>
       </form>
       {error && <p className="error">{error}</p>}
