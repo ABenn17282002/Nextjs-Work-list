@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import SupabaseListener from "@/app/components/supabaseListener"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +20,6 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <div>
-          <SupabaseListener />
-        </div>
         <main>{children}</main>
       </body>
     </html>
