@@ -2,6 +2,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export async function signup(formdata: FormData) {
   const supabase = createClient();
@@ -27,6 +28,10 @@ export async function signup(formdata: FormData) {
     redirect("/error");
   }
 
+  // Set a cookie to indicate successful registration
+  const cookieStore = cookies();
+  cookieStore.set('registrationSuccess', 'true', { path: '/' });
+
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/registersuccess");
 }
