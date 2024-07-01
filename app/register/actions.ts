@@ -19,7 +19,7 @@ export async function signup(formdata: FormData) {
     redirect("/error");
   }
 
-  const userData = await supabase.from("user").insert({
+  const userData = await supabase.from("users").insert({
     name: formdata.get("name") as string,
     user_id: data.user.id,
   });

@@ -7,7 +7,7 @@ export default function LoginPage() {
   const router = useRouter();
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form className="p-8 bg-white rounded-lg shadow-md">
+      <form className="p-8 bg-white rounded-lg shadow-md max-w-sm w-full">
         <div className="mb-6">
           <label
             htmlFor="email"
