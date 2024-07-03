@@ -23,3 +23,9 @@ export async function login(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/private')
 }
+
+export async function signOut() {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  redirect('/login');
+}
