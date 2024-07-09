@@ -54,7 +54,15 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: user, error } = await supabase.auth.getUser()
+
+  if (error) {
+    console.error('Error fetching user:', error)
+    // Handle the error as needed, e.g., return a different response
+  } else {
+    console.log('User data:', user)
+    // Use the user data as needed
+  }
 
   return response
 }
