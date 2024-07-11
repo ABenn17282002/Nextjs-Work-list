@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { signOut } from '../login/actions';
+import { signOut } from '../../login/actions';
 
 type ClientPrivatePageProps = {
   user: {

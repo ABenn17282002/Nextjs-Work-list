@@ -2,6 +2,7 @@
 import { createClient } from "@/utils/supabase/client"
 import { AuthError } from "@supabase/supabase-js";
 import { useState } from "react";
+import { getURL } from "@/utils/helpers";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
@@ -13,7 +14,7 @@ export default function ForgetPassword() {
     event.preventDefault();
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "http://localhost:3000/login/reset-password",
+        redirectTo: getURL("login/reset-password"),
       });
       if (error) {
         setError(error);
