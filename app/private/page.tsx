@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import ClientPrivatePage from './ClientPrivatePage';
-import BrowserBackHandler from './BrowserBackHandler';
+import ClientPrivatePage from './components/ClientPrivatePage';
+import BrowserBackHandler from './components/BrowserBackHandler';
 
 export default async function PrivatePage() {
   const supabase = createClient();
