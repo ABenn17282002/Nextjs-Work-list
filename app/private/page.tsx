@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import ClientPrivatePage from './components/ClientPrivatePage';
 import BrowserBackHandler from './components/BrowserBackHandler';
+import { setCookieToken } from '@/utils/cookies';
 
 export default async function PrivatePage() {
   const supabase = createClient();
@@ -16,6 +17,10 @@ export default async function PrivatePage() {
 
   // 型アサーションを使用して userData.user.email が string 型であることを保証
   const user = { email: userData.user.email as string };
+
+    // デバッグ: クッキーのセットを確認
+    console.log('Setting cookie for user:', user.email);
+    setCookieToken(null, 'example-token'); // 実際には適切なトークンを使用
 
   return (
     <>
