@@ -3,14 +3,14 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { signOut } from '../../login/actions';
+import Modal from './Modal'; 
+import { SESSION_TIMEOUT } from '@/utils/constants';
 
 type ClientPrivatePageProps = {
   user: {
     email: string;
   };
 };
-
-const SESSION_TIMEOUT = 60 * 1000; // セッションの有効期限をミリ秒で設定 (ここでは1分)
 
 export default function ClientPrivatePage({ user }: ClientPrivatePageProps) {
   const router = useRouter();
@@ -46,9 +46,9 @@ export default function ClientPrivatePage({ user }: ClientPrivatePageProps) {
       <p>Hello {user.email}</p>
       <button onClick={handleLogout}>Logout</button>
       {sessionExpired && (
-        <div className="modal">
-          <p>セッションの有効期限が切れました。ログインしなおしてください。</p>
-        </div>
+        <Modal>
+          <p>セッションの有効期限が切れました。<br></br>ログインしなおしてください。</p>
+        </Modal>
       )}
     </div>
   );
