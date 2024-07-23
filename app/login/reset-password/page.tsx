@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/utils/supabase/client"
+import { getSupabaseClient } from "@/utils/supabase/client"
 import { AuthError } from "@supabase/supabase-js";
 import { useState } from "react";
 
@@ -7,7 +7,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
   const [error, setError] = useState<AuthError | null>(null);
-  const supabase = createClient();
+  const supabase = getSupabaseClient();
 
   const handleSubmitPassword = async (
     event: React.FormEvent<HTMLFormElement>

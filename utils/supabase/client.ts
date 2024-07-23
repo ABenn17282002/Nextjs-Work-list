@@ -3,11 +3,15 @@ import { createClient as createSupabaseClient, SupabaseClient } from "@supabase/
 import nookies from 'nookies';
 import { GetServerSidePropsContext } from 'next';
 
-export function createClient(context?: GetServerSidePropsContext): SupabaseClient<Database> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  const client = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey);
+let supabase: SupabaseClient<Database> | null = null;
+
+export function getSupabaseClient(context?: GetServerSidePropsContext): SupabaseClient<Database> {
+  if (!supabase) {
+    supabase = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey);
+  }
 
   let token;
   if (context) {
@@ -21,8 +25,8 @@ export function createClient(context?: GetServerSidePropsContext): SupabaseClien
   }
 
   if (token) {
-    client.auth.setSession({ access_token: token, refresh_token: '' });
+    supabase.auth.setSession({ access_token: token, refresh_token: '' });
   }
 
-  return client;
+  return supabase;
 }

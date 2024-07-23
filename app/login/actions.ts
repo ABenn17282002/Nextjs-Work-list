@@ -6,11 +6,9 @@ import { createClient } from '@/utils/supabase/server'
 import { destroyCookieToken } from '@/utils/cookies';
 import { NextPageContext } from 'next';
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData): Promise<string | null> {
   const supabase = createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -19,11 +17,11 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/error')
+    return "パスワード、メールアドレスが一致しません";
   }
 
   revalidatePath('/', 'layout')
-  redirect('/private')
+  return null; // ログイン成功時にはエラーメッセージを返さない
 }
 
 
