@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/utils/supabase/client"
+import { getSupabaseClient } from "@/utils/supabase/client";
 import { AuthError } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getURL } from "@/utils/helpers";
@@ -8,7 +8,7 @@ export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
   const [error, setError] = useState<AuthError | null>(null);
-  const supabase = createClient();
+  const supabase = getSupabaseClient();
 
   const handleSubmitEmail = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,7 +45,7 @@ export default function ForgetPassword() {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-full max-w-xs">
-        <p className="mb-4 text-lg text-gray-700">
+        <p className="mb-4 text-lg text-gray-700 text-center whitespace-nowrap">
           登録されているメールアドレスを入力してください
         </p>
         <form
