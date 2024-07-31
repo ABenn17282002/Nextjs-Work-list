@@ -1,56 +1,75 @@
 "use client";
 import { getSupabaseClient } from "@/utils/supabase/client";
+import { AuthError } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getURL } from "@/utils/helpers";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null); // デバッグ情報用の状態
   const supabase = getSupabaseClient();
 
   const handleSubmitEmail = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setErrorMessage(null); // Reset error message
-    setIsSend(false); // Reset send status
-
     try {
-      console.log("Sending email:", email);
+      console.log("Checking email existence in Supabase:", email);
 
-      const res = await fetch('/api/check-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
+      // 直接クエリでメールアドレスの存在を確認
+      const { data, error: emailCheckError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
 
-      const result = await res.json();
-      console.log("Response status:", res.status);
-      console.log("Response body:", result); // ログを追加
+      console.log("Supabase email check response:", data, emailCheckError);
 
-      if (res.status !== 200) {
-        setErrorMessage(result.message);
+      // デバッグ情報を状態に保存
+      setDebugInfo({ data, emailCheckError, email });
+
+      if (emailCheckError || !data) {
+        setError("アカウントに紐づいたメールアドレスを送ってください");
         return;
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: getURL("login/reset-password"),
       });
-      if (error) {
-        setErrorMessage("エラーが発生しました。");
-        throw error;
+
+      if (resetError) {
+        const errorMessage = resetError instanceof AuthError && resetError.status === 429
+          ? "リクエストが多すぎます。しばらくしてからもう一度お試しください。"
+          : "メール送信中にエラーが発生しました。";
+
+        setError(errorMessage);
+        setDebugInfo({ resetError });
+        return;
       }
+
       setIsSend(true);
     } catch (error) {
-      console.error("Error in handleSubmitEmail:", error);
-      setErrorMessage("エラーが発生しました。");
+      console.error("Unexpected error:", error);
+      const errorMessage = error instanceof AuthError
+        ? "認証エラーが発生しました。"
+        : "予期しないエラーが発生しました。";
+
+      setError(errorMessage);
+      setDebugInfo({ error });
     }
   };
 
   const handleSetEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
+
+  if (isSend) {
+    return (
+      <p className="text-green-500">
+        メールを送信しました。メールボックスをご確認ください。
+      </p>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -62,15 +81,8 @@ export default function ForgetPassword() {
           onSubmit={handleSubmitEmail}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
-          {errorMessage && (
-            <p className="text-red-500 text-center mb-4">{errorMessage}</p>
-          )}
-          {isSend && (
-            <p className="text-green-500 text-center mb-4">
-              メールを送信しました。メールボックスをご確認ください。
-            </p>
-          )}
           <div className="mb-4">
+            {error && <p className="text-red-500">{error}</p>}
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="email"
