@@ -1,12 +1,11 @@
 "use client";
-import { getSupabaseClient } from "@/utils/supabase/client"
-import { AuthError } from "@supabase/supabase-js";
+import { getSupabaseClient } from "@/utils/supabase/client";
 import { useState } from "react";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
-  const [error, setError] = useState<AuthError | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const supabase = getSupabaseClient();
 
   const handleSubmitPassword = async (
@@ -16,10 +15,15 @@ export default function ResetPassword() {
     try {
       const { error } = await supabase.auth.updateUser({ password: password });
       if (error) {
-        setError(error);
+        if (error.message === "New password should be different from the old password.") {
+          setError("新しいパスワードは現在のパスワードと異なるものを入力してください。");
+        } else {
+          setError("エラーが発生しました。もう一度お試しください。");
+        }
         throw error;
       }
       setIsSend(true);
+      setError(null); // Reset error on successful submission
     } catch (error) {
       console.error(error);
     }
@@ -27,15 +31,8 @@ export default function ResetPassword() {
 
   const handleSetPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
+    setError(null); // Reset error when user starts typing a new password
   };
-
-  if (error) {
-    return (
-      <p className="text-red-500 text-center mt-4">
-        エラーが発生しました。もう一度お試しください。
-      </p>
-    );
-  }
 
   if (isSend) {
     return (
@@ -53,12 +50,17 @@ export default function ResetPassword() {
         </p>
         <form onSubmit={handleSubmitPassword} className="space-y-4">
           <input
-            className="w-full p-2 text-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full p-2 text-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              error ? "border-red-500" : ""
+            }`}
             type="password"
             value={password}
             onChange={handleSetPassword}
             placeholder="パスワード"
           />
+          {error && (
+            <p className="text-red-500 text-center">{error}</p>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
