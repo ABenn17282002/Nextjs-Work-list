@@ -8,7 +8,6 @@ export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null); // デバッグ情報用の状態
   const supabase = getSupabaseClient();
 
   const handleSubmitEmail = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,9 +24,6 @@ export default function ForgetPassword() {
 
       console.log("Supabase email check response:", data, emailCheckError);
 
-      // デバッグ情報を状態に保存
-      setDebugInfo({ data, emailCheckError, email });
-
       if (emailCheckError || !data) {
         setError("アカウントに紐づいたメールアドレスを送ってください");
         return;
@@ -43,7 +39,6 @@ export default function ForgetPassword() {
           : "メール送信中にエラーが発生しました。";
 
         setError(errorMessage);
-        setDebugInfo({ resetError });
         return;
       }
 
@@ -55,7 +50,6 @@ export default function ForgetPassword() {
         : "予期しないエラーが発生しました。";
 
       setError(errorMessage);
-      setDebugInfo({ error });
     }
   };
 
