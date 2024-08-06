@@ -1,11 +1,14 @@
 "use client";
 import { getSupabaseClient } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation'; // For Next.js 13+ with app directory
+import { useRouter } from 'next/navigation'; // Next.js 13+のappディレクトリでの使用
+import { z } from "zod";
+import { passwordSchema } from "@/utils/validationSchema"; // Import the schema
 
 export default function ResetPassword() {
   const [password, setPassword] = useState<string>("");
   const [isSend, setIsSend] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const supabase = getSupabaseClient();
@@ -24,7 +27,7 @@ export default function ResetPassword() {
   useEffect(() => {
     if (showModal) {
       const timer = setTimeout(() => {
-        router.push('/login'); // Redirect to login page after 5 seconds
+        router.push('/login'); // 5秒後にログインページへリダイレクト
       }, 5000);
 
       return () => clearTimeout(timer);
@@ -35,10 +38,13 @@ export default function ResetPassword() {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-    if (showModal) return; // If modal is shown, prevent form submission
+    if (showModal) return; // モーダルが表示されている場合はフォーム送信を防ぐ
 
     try {
-      const { error } = await supabase.auth.updateUser({ password: password });
+      // パスワードのみを検証
+      passwordSchema.parse(password);
+
+      const { error } = await supabase.auth.updateUser({ password });
       if (error) {
         if (error.message === "New password should be different from the old password.") {
           setError("新しいパスワードは現在のパスワードと異なるものを入力してください。");
@@ -48,15 +54,25 @@ export default function ResetPassword() {
         throw error;
       }
       setIsSend(true);
-      setError(null); // Reset error on successful submission
-    } catch (error) {
-      console.error(error);
+      setError(null); // 成功時にエラーをリセット
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        // 最初のエラーメッセージのみ表示
+        const firstErrorMessage = validationError.errors[0]?.message;
+        setError(firstErrorMessage || "エラーが発生しました。");
+      } else {
+        console.error(validationError);
+      }
     }
   };
 
   const handleSetPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
-    setError(null); // Reset error when user starts typing a new password
+    setError(null); // ユーザーが新しいパスワードを入力し始めたらエラーをリセット
+  };
+
+  const handleToggleShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
   const Modal = () => (
@@ -83,23 +99,38 @@ export default function ResetPassword() {
           新しいパスワードを入力してください
         </p>
         <form onSubmit={handleSubmitPassword} className="space-y-4">
-          <input
-            className={`w-full p-2 text-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              error ? "border-red-500" : ""
-            }`}
-            type="password"
-            value={password}
-            onChange={handleSetPassword}
-            placeholder="パスワード"
-            disabled={showModal} // Disable input when modal is shown
-          />
+          <div>
+            <input
+              id="password"
+              className={`w-full p-2 mt-1 text-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                error ? "border-red-500" : ""
+              }`}
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={handleSetPassword}
+              placeholder="パスワード"
+              disabled={showModal} // モーダルが表示されている場合は入力を無効化
+            />
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="showPassword"
+              className="mr-2"
+              checked={showPassword}
+              onChange={handleToggleShowPassword}
+            />
+            <label htmlFor="showPassword" className="text-sm text-gray-700">
+              パスワードを表示
+            </label>
+          </div>
           {error && !showModal && (
             <p className="text-red-500 text-center">{error}</p>
           )}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={showModal} // Disable button when modal is shown
+            disabled={showModal} // モーダルが表示されている場合はボタンを無効化
           >
             送信
           </button>
