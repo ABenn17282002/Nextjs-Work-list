@@ -1,0 +1,24 @@
+/* Header.module.css */
+
+/* ヘッダーのスタイル */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* ヘッダーの高さを指定 */
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  z-index: 1000; /* z-indexを設定してヘッダーが他の要素の上にくるようにする */
+}
+  
+/* ロゴのスタイル */
+.logo {
+  margin-left: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
