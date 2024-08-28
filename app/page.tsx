@@ -1,9 +1,14 @@
+import Link from "next/link";
 import GoogleButton from "./ui/header/GoogleButton";
+import IsLoggedIn from "@/app/lib/auth/IsLoggedIn";
 
-export default function Home() {
+export default async function Home() {
+  const userInfo = await IsLoggedIn();
+
   return (    
     <div className="m-2">
-      <GoogleButton />
+      {!userInfo ? <GoogleButton /> : null}
     </div>
   );
 }
+

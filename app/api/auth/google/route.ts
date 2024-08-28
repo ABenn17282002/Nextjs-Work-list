@@ -61,10 +61,22 @@ export async function GET(request: NextRequest) {
     throw new Error("IDトークンが取得できませんでした。");
   }
 
-  // userInfoCookieContentとしてIDトークンを使用
-  const userInfoCookieContent = jwt.decode(tokens.id_token);
-  return Response.json(userInfoCookieContent);
+  // const userInfoCookieContent = jwt.decode(tokens.id_token);
+  // return Response.json(userInfoCookieContent);
 
+  // userInfoCookieContentとしてIDトークンを使用
+  const userInfoCookieContent = tokens.id_token;
+  // クッキーにトークンを設定
+  cookies().set({
+    name: "user_info",
+    value: userInfoCookieContent,
+    httpOnly: true,
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 3, // 3 days
+  });
+
+  return redirect("/");
 }
 
 export async function DELETE() {
